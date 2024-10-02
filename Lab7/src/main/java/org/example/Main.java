@@ -24,7 +24,7 @@ public class Main {
             @Override
             public String apply(Integer num) {
                 if (num == 0) return "0";
-                if (num < 8) return Integer.toString(num);
+                if (num < 8) return "" + num;
                 return apply(num / 8) + (num % 8);
             }
         };

@@ -15,6 +15,8 @@ public class Main {
 
     public static void main(String[] args) {
         new Main().startJournal();
+        Student student = new Student();
+        System.out.print(student);
     }
 
     private void startJournal() {
@@ -69,8 +71,26 @@ public class Main {
     private LocalDate getBirthDateInput() {
         while (true) {
             System.out.print("Birth Date (yyyy-MM-dd): ");
+            String input = userInputScanner.nextLine();
+
+            if (input.matches("\\d{4}-02-30")) {
+                System.out.println("February only has 29 days in leap years or 28 days in non-leap years. Please enter a valid date.");
+                continue;
+            }
+
+            if (input.matches("\\d{4}-02-29")) {
+                int year = Integer.parseInt(input.split("-")[0]);
+                if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) {
+                    return LocalDate.parse(input, dateFormatter);
+                } else {
+                    System.out.println("The year " + year + " is not a leap year. Please enter a valid date.");
+                    continue;
+                }
+            }
+
             try {
-                return LocalDate.parse(userInputScanner.nextLine(), dateFormatter);
+                LocalDate birthDate = LocalDate.parse(input, dateFormatter);
+                return birthDate;
             } catch (DateTimeParseException e) {
                 System.out.println("Invalid date format. Please use yyyy-MM-dd.");
             }
