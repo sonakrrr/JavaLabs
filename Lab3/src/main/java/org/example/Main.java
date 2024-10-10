@@ -1,9 +1,5 @@
 package org.example;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
@@ -20,7 +16,9 @@ public class Main {
 
         while (!exit) {
             view.displayMenu(); // Відображення меню
-            int choice = scanner.nextInt();
+            int choice = getValidInput(scanner);
+
+            if (choice == -1) continue; // Пропускаємо некоректне введення
 
             switch (choice) {
                 case 1:
@@ -34,7 +32,7 @@ public class Main {
                 case 3:
                     view.displayMessage("Choose the type of shape to calculate total area:");
                     view.displayMessage("1 - Rectangle, 2 - Triangle, 3 - Circle");
-                    int shapeChoice = scanner.nextInt();
+                    int shapeChoice = getValidInput(scanner);
                     Class<?> selectedShapeType = getShapeType(shapeChoice);
                     if (selectedShapeType != null) {
                         double totalSelectedShapeArea = controller.calculateAreaByType(selectedShapeType);
@@ -44,26 +42,24 @@ public class Main {
                     }
                     break;
                 case 4:
-                    // Сортування фігур за площею
                     controller.sortShapesByArea();
                     view.displayMessage("Shapes sorted by area:");
                     controller.displayShapes();
                     break;
                 case 5:
-                    // Сортування фігур за кольором
                     controller.sortShapesByColor();
                     view.displayMessage("Shapes sorted by color:");
                     controller.displayShapes();
                     break;
                 case 6:
-                    // Зберегти фігури у текстовий файл
-                    saveShapesToTextFile(controller.getShapes());
+                    view.displayMessage("Enter file path to save shapes:");
+                    String savePath = scanner.next();
+                    ShapeFileHandler.saveShapes(savePath, controller.getShapes());
                     break;
                 case 7:
-                    // Завантажити фігури з текстового файлу
-                    view.displayMessage("Enter the filename to load shapes from (e.g., shapes.txt):");
-                    String filename = scanner.next();
-                    shapes = loadShapesFromTextFile(filename);
+                    view.displayMessage("Enter file path to load shapes:");
+                    String loadPath = scanner.next();
+                    shapes = ShapeFileHandler.loadShapes(loadPath);
                     controller = new ShapeController(shapes); // Оновлюємо контролер
                     break;
                 case 0:
@@ -75,103 +71,41 @@ public class Main {
         }
     }
 
-    // Метод для створення випадкових фігур
-    private static Shape[] generateRandomShapes(int number) {
+    static Shape[] generateRandomShapes(int number) {
         Shape[] shapes = new Shape[number];
-        Random random = new Random();
-        String[] colors = {"Red", "Green", "Blue", "Yellow", "Black", "White", "Purple"};
-
         for (int i = 0; i < number; i++) {
-            String color = colors[random.nextInt(colors.length)];
-            int shapeType = random.nextInt(3); // 0, 1, or 2
-
-            switch (shapeType) {
-                case 0: // Rectangle
-                    double width = Math.round((random.nextDouble() * 10 + 1) * 10.0) / 10.0; // Random width
-                    double height = Math.round((random.nextDouble() * 10 + 1) * 10.0) / 10.0; // Random height
-                    shapes[i] = new Rectangle(color, width, height);
+            int randomChoice = (int) (Math.random() * 3); // Випадкове число від 0 до 2
+            switch (randomChoice) {
+                case 0:
+                    shapes[i] = new Rectangle("Red", Math.random() * 10 + 1, Math.random() * 10 + 1);
                     break;
-                case 1: // Triangle
-                    double base = Math.round((random.nextDouble() * 10 + 1) * 10.0) / 10.0; // Random base
-                    double triHeight = Math.round((random.nextDouble() * 10 + 1) * 10.0) / 10.0; // Random height
-                    shapes[i] = new Triangle(color, base, triHeight);
+                case 1:
+                    shapes[i] = new Triangle("Blue", Math.random() * 10 + 1, Math.random() * 10 + 1);
                     break;
-                case 2: // Circle
-                    double radius = Math.round((random.nextDouble() * 10 + 1) * 10.0) / 10.0; // Random radius
-                    shapes[i] = new Circle(color, radius);
+                case 2:
+                    shapes[i] = new Circle("Green", Math.random() * 10 + 1);
                     break;
             }
         }
         return shapes;
     }
 
-    // Метод для збереження фігур у текстовий файл
-    private static void saveShapesToTextFile(Shape[] shapes) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("shapes.txt"))) {
-            for (Shape shape : shapes) {
-                writer.write(shape.toString());
-                writer.newLine(); // Перехід на новий рядок
-            }
-            System.out.println("Shapes saved to shapes.txt");
-        } catch (IOException e) {
-            System.out.println("Error saving shapes to text file: " + e.getMessage());
-        }
-    }
-
-    private static Shape[] loadShapesFromTextFile(String filename) {
-        List<Shape> shapeList = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                // Відокремлюємо тип фігури від інших параметрів
-                String[] parts = line.split("\\["); // Розділяємо на тип фігури і параметри
-                String shapeType = parts[0].trim(); // Отримуємо тип фігури (Triangle, Circle, Rectangle)
-                String params = parts[1].replaceAll("]", "").trim(); // Отримуємо параметри (колір, розміри)
-
-                // Розділяємо параметри
-                String[] attributes = params.split(", ");
-                String color = attributes[0].split("=")[1].trim(); // Отримуємо колір
-
-                switch (shapeType) {
-                    case "Triangle":
-                        double base = Double.parseDouble(attributes[1].split("=")[1].trim());
-                        double height = Double.parseDouble(attributes[2].split("=")[1].trim());
-                        shapeList.add(new Triangle(color, base, height));
-                        break;
-                    case "Circle":
-                        double radius = Double.parseDouble(attributes[1].split("=")[1].trim());
-                        shapeList.add(new Circle(color, radius));
-                        break;
-                    case "Rectangle":
-                        double width = Double.parseDouble(attributes[1].split("=")[1].trim());
-                        double rectHeight = Double.parseDouble(attributes[2].split("=")[1].trim());
-                        shapeList.add(new Rectangle(color, width, rectHeight));
-                        break;
-                    default:
-                        System.out.println("Unknown shape type: " + shapeType);
-                }
-            }
-            System.out.println("Shapes loaded from " + filename);
-
-            // Відображення фігур у консолі
-            System.out.println("Loaded Shapes:");
-            for (Shape shape : shapeList) {
-                System.out.println(shape); // Виводимо фігури в консоль
-            }
-            return shapeList.toArray(new Shape[0]); // Повертаємо масив
-        } catch (IOException e) {
-            System.out.println("Error loading shapes from text file: " + e.getMessage());
-            return new Shape[0]; // Повертаємо порожній масив у разі помилки
-        }
-    }
-
-    // Допоміжний метод для отримання типу фігури
-    private static Class<?> getShapeType(int choice) {
+    static Class<?> getShapeType(int choice) {
         return switch (choice) {
             case 1 -> Rectangle.class;
             case 2 -> Triangle.class;
             case 3 -> Circle.class;
             default -> null;
         };
+    }
+
+    static int getValidInput(Scanner scanner) {
+        try {
+            return scanner.nextInt();
+        } catch (Exception e) {
+            System.out.println("Invalid input. Please enter a valid number.");
+            scanner.next(); // Очищення некоректного введення
+            return -1;
+        }
     }
 }
