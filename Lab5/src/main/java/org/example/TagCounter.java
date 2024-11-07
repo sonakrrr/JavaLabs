@@ -11,7 +11,6 @@ public class TagCounter {
     public Map<String, Integer> countTags(String urlString) throws IOException {
         Map<String, Integer> tagCounts = new HashMap<>();
 
-        // Створення URI, а потім URL
         try {
             URI uri = new URI(urlString);
             URL url = uri.toURL();

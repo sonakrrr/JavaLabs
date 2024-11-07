@@ -11,10 +11,9 @@ public class FileHandler implements Serializable {
 
     public FileHandler() {}
 
-    // Зберігаємо вміст у файл як серіалізований об'єкт
     public void saveToFile(String saveFilePath) throws IOException {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(saveFilePath))) {
-            oos.writeObject(this);  // Серіалізуємо весь об'єкт, включаючи шлях і вміст
+            oos.writeObject(this);
         }
     }
 
@@ -27,8 +26,8 @@ public class FileHandler implements Serializable {
                 lines.add(line);
             }
         }
-        this.content = String.join("\n", lines);  // Зберігаємо вміст файлу
-        this.filePath = filePath;  // Зберігаємо шлях до файлу
+        this.content = String.join("\n", lines);
+        this.filePath = filePath;
         return lines;
     }
 

@@ -9,9 +9,9 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class Menu {
-    private final FileHandler fileHandler;
+    final FileHandler fileHandler;
     private final EncryptDecrypt encryptDecrypt;
-    private final TagCounter tagCounter;
+    final TagCounter tagCounter;
     private String currentFilePath = "";
     private String consoleOutput = ""; // Змінна для збереження тексту з консолі
 
@@ -38,7 +38,7 @@ public class Menu {
 
             System.out.print("Enter your choice: ");
             choice = scanner.nextInt();
-            scanner.nextLine(); // consume the newline character
+            scanner.nextLine();
 
             switch (choice) {
                 case 1:
@@ -71,18 +71,17 @@ public class Menu {
         } while (choice != 8);
     }
 
-    private void readFile(Scanner scanner) {
+    void readFile(Scanner scanner) {
         System.out.print("Enter the file path to read: ");
         currentFilePath = scanner.nextLine();
         try {
-            // Читання рядків з текстового файлу
             List<String> lines = fileHandler.readLinesFromFile(currentFilePath);
             StringBuilder outputBuilder = new StringBuilder();
             for (String line : lines) {
                 outputBuilder.append(line).append("\n");
                 System.out.println(line);
             }
-            consoleOutput = outputBuilder.toString(); // Зберігаємо текст у змінну для подальшого використання
+            consoleOutput = outputBuilder.toString();
         } catch (IOException e) {
             System.out.println("Error reading file: " + e.getMessage());
         }
@@ -90,7 +89,7 @@ public class Menu {
 
 
 
-    private void showLongestLine() {
+    void showLongestLine() {
         if (currentFilePath.isEmpty()) {
             System.out.println("Please read a file first.");
             return;
@@ -107,7 +106,7 @@ public class Menu {
     }
 
 
-    private void saveFile(Scanner scanner) {
+    void saveFile(Scanner scanner) {
         if (consoleOutput.isEmpty()) {
             System.out.println("No content available to save. Perform encryption or decryption first.");
             return;
@@ -125,7 +124,7 @@ public class Menu {
         }
     }
 
-    private void encryptFile(Scanner scanner) {
+    void encryptFile(Scanner scanner) {
         if (currentFilePath.isEmpty()) {
             System.out.println("Please read a file first.");
             return;
@@ -148,7 +147,7 @@ public class Menu {
         }
     }
 
-    private void decryptFile(Scanner scanner) {
+    void decryptFile(Scanner scanner) {
         String encryptedFilePath = "encrypted.txt";
         System.out.print("Enter the key character for decryption: ");
         char key = scanner.nextLine().charAt(0);
@@ -168,7 +167,7 @@ public class Menu {
         }
     }
 
-    private void countTagsSortedByAlphabet(Scanner scanner) {
+    void countTagsSortedByAlphabet(Scanner scanner) {
         System.out.print("Enter the URL for tag counting: ");
         String url = scanner.nextLine();
         try {
@@ -182,7 +181,7 @@ public class Menu {
         }
     }
 
-    private void countTagsSortedByFrequency(Scanner scanner) {
+    void countTagsSortedByFrequency(Scanner scanner) {
         System.out.print("Enter the URL for tag counting: ");
         String url = scanner.nextLine();
         try {
